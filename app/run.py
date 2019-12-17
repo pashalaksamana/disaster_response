@@ -43,6 +43,12 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
+    n_category = df.drop(columns=['id','message','original','genre']).sum().sort_values(ascending=False)
+    category_names = list(n_category.index)
+    
+    split_by_genre = df.groupby('genre').sum().drop(columns='id')
+    category_share = (split_by_genre/split_by_genre.sum())[category_names]
+    
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
@@ -62,6 +68,38 @@ def index():
                 'xaxis': {
                     'title': "Genre"
                 }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=category_names,
+                    y=n_category
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Types',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
+                }
+            }
+        },
+         {
+            'data': [ Bar(name=row,x=category_names,y=category_share.loc[row]) for row in category_share.index],
+
+            'layout': {
+                'title': 'Share of Message Genre in each Category',
+                'yaxis': {
+                    'title': "Percentage"
+                },
+                'xaxis': {
+                    'title': "Category"
+                },
+                'barmode':'stack'
             }
         }
     ]
